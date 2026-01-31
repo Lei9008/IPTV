@@ -2,9 +2,9 @@
 IPTV自用源
 
 
-# Ku9-IPTV-source
+## Ku9-IPTV-source
 个人收集的一些适用于酷9的直播源，也可以被天光云影、云影空蒙、OK影视等其他app使用。
-## 设置说明
+### 设置说明
 酷9app安装完成后会在存储的主目录生成一个叫“酷9”的文件夹，该文件夹打开后如图所示
 ![酷9文件夹截图](https://raw.githubusercontent.com/fuxinyi0505/Ku9-IPTV-source/refs/heads/main/酷9文件夹截图.jpg)
 里面需要关注的是webviewJscode、js、logo这三个文件夹，下面分别加以说明
@@ -16,4 +16,4 @@ IPTV自用源
 - https://raw.githubusercontent.com/fuxinyi0505/Ku9-IPTV-source/refs/heads/main/webview.txt
 
 - 国内请自行添加代理（ps:搜索github代理就可以找到很多代理）
-## 随缘更新（没出现大面积链接失效，一般不会频繁更新）
+### 随缘更新（没出现大面积链接失效，一般不会频繁更新）
