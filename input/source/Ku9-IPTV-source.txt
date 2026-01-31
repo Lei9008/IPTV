@@ -115,10 +115,9 @@ CGTN英语,webview://https://yangshipin.cn/tv/home?pid=600014550
 浙江国际,webview://https://www.cztv.com/liveTV/110
 浙江钱江,webview://https://www.cztv.com/liveTV/102
 浙江之江纪录,webview://https://www.cztv.com/liveTV/112
-优漫卡通,webview://https://live.jstv.com/?channelId=543
+
 
 上海频道,#genre#
-
 上海新闻综合,webview://https://live.kankanews.com/huikan?id=2
 上海都市,webview://https://live.kankanews.com/huikan?id=4
 第一财经,webview://https://live.kankanews.com/huikan?id=5
@@ -130,4 +129,11 @@ CGTN英语,webview://https://yangshipin.cn/tv/home?pid=600014550
 
 陕西频道,#genre#
 陕西农林,webview://http://live.snrtv.com/nl
+
+少儿频道,#genre#
+CCTV14,webview://https://tv.cctv.com/live/cctvchild/
+CCTV14,webview://https://yangshipin.cn/tv/home?pid=600001809
+山东少儿,webview://https://v.iqilu.com/live/sepd/
+广东少儿,webview://https://www.gdtv.cn/tvChannelDetail/54
+嘉佳卡通,webview://https://www.gdtv.cn/tvChannelDetail/66
 优漫卡通,webview://https://live.jstv.com/?channelId=543
