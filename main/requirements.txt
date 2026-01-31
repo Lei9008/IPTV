@@ -1,0 +1,5 @@
+requests>=2.31.0
+aiohttp>=3.9.1
+logging>=0.4.9.6
+pathlib>=1.0.1
+pip install fuzzywuzzy python-Levenshtein  # python-Levenshtein是优化匹配速度的可选依赖

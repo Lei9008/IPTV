@@ -1,0 +1,11 @@
+# self_use/IPTV/.gitignore
+# 忽略日志文件
+*.log
+# 可选：忽略缓存/临时文件
+__pycache__/
+*.pyc
+*.pyo
+# 保留output目录下的M3U和TXT，忽略其他
+output/*.log
+!output/*.m3u
+!output/*.txt
