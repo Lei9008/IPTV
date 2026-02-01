@@ -1,47 +1,80 @@
-name: 1.IPTV 源汇总(IPTV Source Summary)
+# 工作流名称（显示在 GitHub Actions 页面）
+name: Auto Merge IPTV Sources & Update File
 
+# 触发条件配置
 on:
+  # 1. 定时触发：每 3 天 UTC 时间 2:00 执行（对应上海时间 10:00）
   schedule:
-    # 每3天UTC时间2:00执行（对应上海时间10:00，原注释10:28有误）
-    - cron: '00 2 */2 * *'  
-  workflow_dispatch:  # 允许手动触发
-   
+    - cron: '0 2 */3 * *'
+  # 2. 手动触发：允许在 GitHub Actions 页面手动点击运行
+  workflow_dispatch:
+
+# 环境变量全局配置
 env:
-  TZ: Asia/Shanghai  # 设置时区为上海
+  TZ: Asia/Shanghai  # 设置时区为上海，日志时间更直观
+  PYTHON_VERSION: '3.10'  # 指定 Python 版本，与脚本兼容
 
+# 任务配置
 jobs:
-  run_script:
-    runs-on: ubuntu-latest  # 使用最新的Ubuntu运行器
+  merge-and-push-iptv:
+    # 运行环境：使用最新版 Ubuntu
+    runs-on: ubuntu-latest
 
+    # 任务步骤
     steps:
-    - name: 检出代码库(Checkout repository)  # 检出代码库
-      uses: actions/checkout@v3
+      # 步骤 1：检出仓库代码（将仓库内容拉取到运行器）
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 拉取完整仓库历史，避免提交冲突
 
-    - name: 设置Python环境(Set up Python)  # 设置Python环境
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'  # 使用Python 3.10
+      # 步骤 2：设置 Python 环境（匹配脚本所需的 Python 版本）
+      - name: Set Up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'  # 缓存 pip 依赖，提升后续运行速度
 
-    - name: 缓存pip依赖项(Cache dependencies)  # 缓存pip依赖项
-      uses: actions/cache@v4
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+      # 步骤 3：安装 Python 依赖（仅需 requests，与脚本对应）
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests  # 脚本核心依赖
 
-    - name: 安装系统依赖(Install system dependencies)  # 安装系统依赖
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y ffmpeg
+      # 步骤 4：执行 IPTV 合并脚本（生成 output/Live_iptv.txt）
+      - name: Run IPTV Merge Script
+        run: |
+          python main/main.py
+        working-directory: ./  # 工作目录（脚本所在目录，根目录则为 ./）
 
-    - name: 安装Python依赖(Install Python dependencies)  # 合并冗余的依赖安装步骤
-      run: |
-        python -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
-        pip install requests aiohttp fuzzywuzzy -i https://pypi.tuna.tsinghua.edu.cn/simple
+      # 步骤 5：配置 Git 用户信息（必须，否则无法提交代码）
+      - name: Configure Git User Identity
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
 
-    - name: 执行主脚本(Run Python script)  # 执行主脚本
-      run: |
-        python main/main.py
-        
- 
+      # 步骤 6：替换远程仓库地址（使用 PAT 认证，解决 403 权限问题）
+      - name: Update Git Remote URL with PAT
+        env:
+          # 引入仓库 Secrets 中配置的 PAT（名称需与你配置的一致，此处为 IPTV_PUSH_TOKEN）
+          IPTV_PUSH_TOKEN: ${{ secrets.IPTV_PUSH_TOKEN }}
+        run: |
+          git remote set-url origin https://${IPTV_PUSH_TOKEN}@github.com/Lei9008/IPTV.git
+
+      # 步骤 7：提交并推送更改（仅当文件有变更时执行）
+      - name: Commit and Push Changes
+        run: |
+          # 添加所有变更的文件（重点是 output/Live_iptv.txt）
+          git add -A
+
+          # 检查是否有未提交的变更，有则提交，无则跳过
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-merge IPTV sources: Update Live_iptv.txt"
+            # 拉取远程最新代码（避免推送冲突，添加容错）
+            git pull --rebase origin main || true
+            # 推送至 main 分支
+            git push origin main
+            echo "Successfully pushed changes to remote repository."
+          else
+            echo "No changes to commit, skip push."
+          fi
