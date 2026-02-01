@@ -1,7 +1,7 @@
 import requests
 import os
 
-# ===================== 新增配置：GitHub 镜像/代理前缀 =====================
+# ===================== 配置项：GitHub 镜像/代理前缀（可按需更新） =====================
 # 常用 GitHub RAW 镜像域名（国内可访问优先）
 GITHUB_MIRRORS = [
     "raw.fastgit.org",
@@ -16,6 +16,7 @@ GITHUB_PROXY_PREFIXES = [
     "https://raw.githubusercontent.com.cnpmjs.org/"
 ]
 
+# ===================== 工具函数：GitHub URL 处理 =====================
 def replace_github_url(raw_url, use_mirror=True, use_proxy=False):
     """
     替换原GitHub RAW URL为镜像地址或添加代理前缀，提升国内访问成功率
@@ -40,9 +41,10 @@ def replace_github_url(raw_url, use_mirror=True, use_proxy=False):
     print(f"URL处理完成：原地址 -> {new_url}")
     return new_url
 
+# ===================== 工具函数：获取单个URL文本内容 =====================
 def get_url_content(url):
     """
-    发送网络请求，获取指定URL的文本内容（新增GitHub地址处理）
+    发送网络请求，获取指定URL的文本内容（集成GitHub地址处理）
     :param url: 目标网络链接
     :return: 链接对应的文本内容（获取失败返回空字符串）
     """
@@ -62,44 +64,52 @@ def get_url_content(url):
         print(f"获取链接内容失败：{url}，错误信息：{str(e)}")
         return ""
 
-def extract_genres_from_demo(demo_file_path="demo.txt"):
+# ===================== 工具函数：从demo.txt提取分类 =====================
+def extract_genres_from_demo(demo_file_name="demo.txt"):
     """
-    从demo.txt中提取所有#genre#标记的分类（格式：xxx,#genre#）
-    :param demo_file_path: demo.txt文件路径
-    :return: 提取到的分类列表（如["山东频道", "北京频道"]）
+    从IPTV根目录的demo.txt中提取所有#genre#标记的分类（适配：IPTV/main/main.py & IPTV/demo.txt）
+    :param demo_file_name: demo.txt文件名
+    :return: 提取到的唯一分类列表
     """
     target_genres = []
     try:
-        # 检查demo.txt是否存在
+        # 1. 路径回溯：找到IPTV根目录下的demo.txt
+        current_script_path = os.path.abspath(__file__)  # 获取main.py完整路径
+        main_folder_path = os.path.dirname(current_script_path)  # 获取main文件夹路径
+        iptv_root_path = os.path.dirname(main_folder_path)  # 回溯到IPTV根目录
+        demo_file_path = os.path.join(iptv_root_path, demo_file_name)  # 拼接demo.txt完整路径
+        
+        # 2. 检查demo.txt是否存在
         if not os.path.exists(demo_file_path):
             print(f"错误：demo.txt文件不存在（路径：{demo_file_path}）")
+            print(f"请将demo.txt放在IPTV根目录：{iptv_root_path}")
             return target_genres
         
-        # 读取demo.txt，匹配目标格式
+        # 3. 读取并提取分类
         with open(demo_file_path, "r", encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
-                line = line.strip()  # 去除首尾空格、换行符
+                line = line.strip()
                 if not line:
-                    continue  # 跳过空行
+                    continue
                 
-                # 匹配格式：xxx,#genre#（分割符为逗号，后部分严格等于#genre#）
                 if ",#genre#" in line:
                     genre = line.split(",#genre#")[0].strip()
-                    if genre:  # 避免提取空分类
+                    if genre:
                         target_genres.append(genre)
                         print(f"从demo.txt第{line_num}行提取到分类：{genre}")
     
     except Exception as e:
         print(f"读取/解析demo.txt失败，错误信息：{str(e)}")
     
-    # 去重并返回（避免重复分类）
+    # 去重并返回
     unique_genres = list(set(target_genres))
-    print(f"demo.txt分类提取完成，共获取{len(unique_genres)}个唯一分类：{unique_genres}")
+    print(f"\ndemo.txt分类提取完成，共获取{len(unique_genres)}个唯一分类：{unique_genres}")
     return unique_genres
 
+# ===================== 工具函数：按分类筛选内容 =====================
 def filter_content_by_genres(content, target_genres):
     """
-    筛选内容，仅保留包含目标分类的行/内容（适配IPTV文本格式）
+    筛选内容，仅保留包含目标分类的行（适配IPTV文本格式，保留原格式）
     :param content: 原始URL获取的文本内容
     :param target_genres: 从demo.txt提取的目标分类列表
     :return: 筛选后的有效内容
@@ -108,30 +118,29 @@ def filter_content_by_genres(content, target_genres):
         return ""
     
     filtered_lines = []
-    # 按行分割内容（IPTV文本通常按行存储单条信息）
     lines = content.split("\n")
     for line in lines:
         line_strip = line.strip()
-        # 只要该行包含任意一个目标分类，就保留（忽略空行）
+        # 包含任意一个目标分类且非空行，才保留
         if any(genre in line_strip for genre in target_genres) and line_strip:
             filtered_lines.append(line)
     
-    # 拼接筛选后的内容，保留原格式
     filtered_content = "\n".join(filtered_lines)
-    print(f"内容筛选完成，保留{len(filtered_lines)}条符合分类的记录")
+    print(f"内容筛选完成，保留{len(filtered_lines)}条符合分类的记录\n")
     return filtered_content
 
+# ===================== 核心函数：合并并保存筛选后的内容 =====================
 def merge_url_contents(url_list, save_file_path="output/Live_iptv.txt"):
     """
-    合并多个URL的文本内容（仅保留匹配demo.txt分类的内容），并保存到指定本地文件路径
+    合并多个URL的文本内容（仅保留匹配demo.txt分类的内容），并保存到本地
     :param url_list: 待获取内容的URL列表
-    :param save_file_path: 合并结果保存的本地文件路径
+    :param save_file_path: 合并结果保存路径
     :return: 合并后的完整文本内容
     """
-    # 第一步：先从demo.txt提取目标分类
+    # 第一步：提取目标分类（无有效分类则终止）
     target_genres = extract_genres_from_demo()
     if not target_genres:
-        print("未从demo.txt提取到有效分类，终止合并流程")
+        print("未提取到有效分类，终止合并流程")
         return ""
     
     # 第二步：遍历URL，获取并筛选内容
@@ -139,32 +148,34 @@ def merge_url_contents(url_list, save_file_path="output/Live_iptv.txt"):
     for url in url_list:
         raw_content = get_url_content(url)
         if raw_content:
-            # 筛选仅保留目标分类的内容
             filtered_content = filter_content_by_genres(raw_content, target_genres)
             if filtered_content:
                 merged_content += filtered_content + "\n\n"
     
-    # 第三步：保存筛选后的合并内容
+    # 第三步：保存合并结果
     if merged_content:
+        # 自动创建文件夹
         folder_path = os.path.dirname(save_file_path)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
             print(f"成功创建文件夹：{folder_path}")
         
+        # 写入文件（UTF-8编码避免乱码）
         with open(save_file_path, "w", encoding="utf-8") as f:
             f.write(merged_content)
-        print(f"合并完成，结果已保存到：{save_file_path}")
+        print(f"合并完成，结果已保存到：{os.path.abspath(save_file_path)}")
     else:
         print("未获取到符合分类的有效内容，合并失败")
     
     return merged_content
 
-# 主程序执行
+# ===================== 主程序入口 =====================
 if __name__ == "__main__":
+    # 目标IPTV数据源URL列表
     target_urls = [
         "https://raw.githubusercontent.com/Lei9008/IPTV/main/input/source/Ku9-IPTV-source.txt",
         "https://raw.githubusercontent.com/Lei9008/iptv_selfuse/master/output/user_result.txt"
     ]
     
-    # 调用函数合并内容（自动处理GitHub镜像、提取demo分类、筛选内容）
+    # 调用核心合并函数
     merge_url_contents(target_urls)
