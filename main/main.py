@@ -196,9 +196,10 @@ def merge_url_contents(url_list, save_file_path="output/Live_iptv.txt"):
 if __name__ == "__main__":
     # 目标IPTV数据源URL列表
     target_urls = [
-        "https://raw.githubusercontent.com/Lei9008/IPTV/main/input/source/Ku9-IPTV-source.txt",
-        "https://raw.githubusercontent.com/Lei9008/iptv_selfuse/master/output/user_result.txt"
+        "https://github.com/Lei9008/IPTV/main/input/source/Ku9-IPTV-source.txt",
+        "https://github.com/Lei9008/iptv_selfuse/master/output/user_result.txt"
     ]
     
     # 调用核心合并函数
     merge_url_contents(target_urls)
+
