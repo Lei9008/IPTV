@@ -4,9 +4,9 @@ import os
 # ===================== 配置项：GitHub 镜像/代理前缀（可按需更新） =====================
 # 常用 GitHub RAW 镜像域名（国内可访问优先）
 GITHUB_MIRRORS = [
-    "raw.fastgit.org",
     "raw.gitmirror.com",
-    "raw.sevencdn.com"
+    "raw.sevencdn.com",
+    "raw.kkgithub.com"
 ]
 
 # GitHub 代理前缀（拼接在原URL前实现代理访问）
@@ -16,53 +16,78 @@ GITHUB_PROXY_PREFIXES = [
     "https://raw.githubusercontent.com.cnpmjs.org/"
 ]
 
-# ===================== 工具函数：GitHub URL 处理 =====================
-def replace_github_url(raw_url, use_mirror=True, use_proxy=False):
+# ===================== 工具函数：GitHub URL 处理（拆分镜像/代理） =====================
+def get_mirror_url(raw_url):
     """
-    替换原GitHub RAW URL为镜像地址或添加代理前缀，提升国内访问成功率
+    生成镜像域名的URL（仅处理GitHub RAW地址）
     :param raw_url: 原始GitHub RAW URL
-    :param use_mirror: 是否使用镜像域名（默认开启）
-    :param use_proxy: 是否使用代理前缀（默认关闭，与镜像二选一即可）
-    :return: 处理后的可访问URL
+    :return: 镜像处理后的URL
     """
     if not raw_url.startswith("https://raw.githubusercontent.com"):
-        return raw_url  # 非GitHub RAW URL，直接返回
+        return raw_url
     
-    new_url = raw_url
-    # 1. 使用代理前缀（优先级高于镜像，二选一避免重复处理）
-    if use_proxy and GITHUB_PROXY_PREFIXES:
-        proxy_prefix = GITHUB_PROXY_PREFIXES[0]  # 使用第一个代理前缀（可按需切换）
-        new_url = proxy_prefix + raw_url
-    # 2. 使用镜像域名
-    elif use_mirror and GITHUB_MIRRORS:
-        mirror_domain = GITHUB_MIRRORS[0]  # 使用第一个镜像域名（可按需切换）
-        new_url = raw_url.replace("raw.githubusercontent.com", mirror_domain)
-    
-    print(f"URL处理完成：原地址 -> {new_url}")
-    return new_url
+    if GITHUB_MIRRORS:
+        mirror_domain = GITHUB_MIRRORS[0]
+        mirror_url = raw_url.replace("raw.githubusercontent.com", mirror_domain)
+        print(f"生成镜像URL：{raw_url} -> {mirror_url}")
+        return mirror_url
+    return raw_url
 
-# ===================== 工具函数：获取单个URL文本内容 =====================
-def get_url_content(url):
+def get_proxy_url(raw_url):
     """
-    发送网络请求，获取指定URL的文本内容（集成GitHub地址处理）
-    :param url: 目标网络链接
-    :return: 链接对应的文本内容（获取失败返回空字符串）
+    生成带代理前缀的URL（仅处理GitHub RAW地址）
+    :param raw_url: 原始GitHub RAW URL
+    :return: 代理处理后的URL
+    """
+    if not raw_url.startswith("https://raw.githubusercontent.com"):
+        return raw_url
+    
+    if GITHUB_PROXY_PREFIXES:
+        proxy_prefix = GITHUB_PROXY_PREFIXES[0]
+        proxy_url = proxy_prefix + raw_url
+        print(f"生成代理URL：{raw_url} -> {proxy_url}")
+        return proxy_url
+    return raw_url
+
+# ===================== 工具函数：发送请求（独立封装，方便重试） =====================
+def send_request(target_url):
+    """
+    发送GET请求，返回文本内容（失败返回None）
+    :param target_url: 目标访问URL
+    :return: 文本内容 / None
     """
     try:
-        # 先处理GitHub URL，提升访问成功率
-        processed_url = replace_github_url(url)
-        
         headers = {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
-        response = requests.get(processed_url, headers=headers, timeout=30)
+        response = requests.get(target_url, headers=headers, timeout=30)
         response.raise_for_status()
         response.encoding = response.apparent_encoding
-        print(f"成功获取链接内容：{processed_url}")
+        print(f"成功获取链接内容：{target_url}")
         return response.text
     except Exception as e:
-        print(f"获取链接内容失败：{url}，错误信息：{str(e)}")
-        return ""
+        print(f"访问失败：{target_url}，错误信息：{str(e)}")
+        return None
+
+# ===================== 工具函数：获取单个URL文本内容（实现镜像→代理自动重试） =====================
+def get_url_content(url):
+    """
+    发送网络请求，获取指定URL的文本内容（优先镜像，失败自动切换代理重试）
+    :param url: 目标网络链接
+    :return: 链接对应的文本内容（获取失败返回空字符串）
+    """
+    # 第一步：优先尝试镜像模式访问
+    mirror_url = get_mirror_url(url)
+    content = send_request(mirror_url)
+    
+    # 第二步：如果镜像访问失败，切换为代理模式重试
+    if content is None:
+        print("\n--- 镜像访问失败，尝试切换为代理模式重试 ---")
+        proxy_url = get_proxy_url(url)
+        content = send_request(proxy_url)
+    
+    # 第三步：返回结果（无论是否成功，统一处理为字符串，避免None）
+    return content if content is not None else ""
 
 # ===================== 工具函数：从demo.txt提取分类（适配与main.py同级） =====================
 def extract_genres_from_demo(demo_file_name="demo.txt"):
@@ -73,18 +98,16 @@ def extract_genres_from_demo(demo_file_name="demo.txt"):
     """
     target_genres = []
     try:
-        # 核心修改：直接获取main.py所在目录（即demo.txt所在目录），无需回溯
+        # 直接获取main.py所在目录（即demo.txt所在目录）
         script_dir = os.path.dirname(os.path.abspath(__file__))
-        # 拼接demo.txt完整路径（脚本目录 + 文件名，同级拼接）
         demo_file_path = os.path.join(script_dir, demo_file_name)
         
-        # 2. 检查demo.txt是否存在
         if not os.path.exists(demo_file_path):
             print(f"错误：demo.txt文件不存在（路径：{demo_file_path}）")
             print(f"请将demo.txt放在main.py同级目录：{script_dir}")
             return target_genres
         
-        # 3. 读取并提取分类
+        # 读取并提取分类
         with open(demo_file_path, "r", encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
@@ -145,6 +168,7 @@ def merge_url_contents(url_list, save_file_path="output/Live_iptv.txt"):
     # 第二步：遍历URL，获取并筛选内容
     merged_content = ""
     for url in url_list:
+        print(f"\n--- 开始处理URL：{url} ---")
         raw_content = get_url_content(url)
         if raw_content:
             filtered_content = filter_content_by_genres(raw_content, target_genres)
@@ -162,9 +186,9 @@ def merge_url_contents(url_list, save_file_path="output/Live_iptv.txt"):
         # 写入文件（UTF-8编码避免乱码）
         with open(save_file_path, "w", encoding="utf-8") as f:
             f.write(merged_content)
-        print(f"合并完成，结果已保存到：{os.path.abspath(save_file_path)}")
+        print(f"\n合并完成，结果已保存到：{os.path.abspath(save_file_path)}")
     else:
-        print("未获取到符合分类的有效内容，合并失败")
+        print("\n未获取到符合分类的有效内容，合并失败")
     
     return merged_content
 
