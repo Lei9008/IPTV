@@ -5,7 +5,7 @@ IPTV自用源
 ## Ku9-IPTV-source
 个人收集的一些适用于酷9的直播源，也可以被天光云影、云影空蒙、OK影视等其他app使用。
 ### 设置说明
-酷9app安装完成后,会在存储的主目录下，生成一个叫“酷9”的文件夹，把该文件夹打开后如下图所示：
+酷9app安装完成后，会在存储的主目录下，生成一个叫“酷9”的文件夹，该文件夹打开后如下图所示：
 ![酷9文件夹截图](https://raw.githubusercontent.com/Lei9008/IPTV/main/input/source/Ku9%20script/1.酷9文件夹截图.jpg)
 
 里面需要关注的是webviewJscode、js、logo这三个文件夹，下面分别加以说明
