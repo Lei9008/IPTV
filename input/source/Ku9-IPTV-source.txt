@@ -5,6 +5,7 @@ CCTV4K,webview://https://yangshipin.cn/tv/home?pid=600002264
 CCTV8K,webview://https://yangshipin.cn/tv/home?pid=600156816
 CCTV1,webview://https://yangshipin.cn/tv/home?pid=600001859
 CCTV2,webview://https://yangshipin.cn/tv/home?pid=600001800
+CCTV3,webview://https://yangshipin.cn/tv/home?pid=600001801
 CCTV4,webview://https://yangshipin.cn/tv/home?pid=600001814
 CCTV5,webview://https://yangshipin.cn/tv/home?pid=600001818
 CCTV5+,webview://https://yangshipin.cn/tv/home?pid=600001817
@@ -20,6 +21,7 @@ CCTV14,webview://https://yangshipin.cn/tv/home?pid=600001809
 CCTV15,webview://https://yangshipin.cn/tv/home?pid=600001815
 CCTV16,webview://https://yangshipin.cn/tv/home?pid=600098637
 CCTV17,webview://https://yangshipin.cn/tv/home?pid=600001810
+
 CCTV1,webview://https://tv.cctv.com/live/cctv1/
 CCTV2,webview://https://tv.cctv.com/live/cctv2/
 CCTV3,webview://https://tv.cctv.com/live/cctv3/
