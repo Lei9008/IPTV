@@ -16,11 +16,10 @@ IPTV自用源
 
 
 订阅地址：
+1. 基于2、3筛选汇总:
 - https://raw.kkgithub.com/Lei9008/IPTV/main/input/source/Ku9-IPTV-source.txt
-
-- https://raw.githubusercontent.com/fuxinyi0505/Ku9-IPTV-source/refs/heads/main/Ku9-IPTV-source.txt
-
-- https://raw.githubusercontent.com/fuxinyi0505/Ku9-IPTV-source/refs/heads/main/webview.txt
+2. https://raw.githubusercontent.com/fuxinyi0505/Ku9-IPTV-source/refs/heads/main/Ku9-IPTV-source.txt
+3. https://raw.githubusercontent.com/fuxinyi0505/Ku9-IPTV-source/refs/heads/main/webview.txt
 
 
 - 国内请自行添加代理（ps:搜索github代理就可以找到很多代理）
