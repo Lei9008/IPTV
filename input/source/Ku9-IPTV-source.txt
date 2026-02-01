@@ -87,7 +87,7 @@ CETV4,webview://https://tv.gxtv.cn/channel/channelivePlay_67eace939278435bb4bca9
 陕西农林,webview://http://live.snrtv.com/nl
 
 
-少儿频道,#genre#
+动漫频道,#genre#
 CCTV14,webview://https://yangshipin.cn/tv/home?pid=600001809
 CCTV14,webview://https://tv.cctv.com/live/cctvchild/
 山东少儿,webview://https://v.iqilu.com/live/sepd/
