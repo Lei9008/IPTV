@@ -1,0 +1,66 @@
+
+name: 2.IPTV 源汇总(IPTV Source Summary)
+
+on:
+  schedule:
+    # 每3天UTC时间2:00执行（对应上海时间10:28）
+    - cron: '00 2 */3 * *'  
+  workflow_dispatch:  # 允许手动触发
+   
+env:
+  TZ: Asia/Shanghai  # 设置时区为上海
+
+jobs:
+  run_script:
+    runs-on: ubuntu-latest  # 使用最新的Ubuntu运行器
+
+    steps:
+    - name: 检出代码库(Checkout repository)  # 检出代码库
+      uses: actions/checkout@v3
+
+    - name: 设置Python环境(Set up Python)  # 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'  # 使用Python 3.10
+
+    - name: 缓存pip依赖项(Cache dependencies)  # 缓存pip依赖项
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: 安装系统依赖(Install system dependencies)  # 安装系统依赖
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y ffmpeg
+
+    - name: 安装Python依赖(Install Python dependencies)  # 安装Python依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests aiohttp
+
+    - name: 安装Python依赖(Install Python dependencies)
+      run: |
+       python -m pip install --upgrade pip -i https://pypi.tuna.tsinghua.edu.cn/simple
+       pip install requests aiohttp fuzzywuzzy -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+    - name: 执行主脚本(Run Python script)  # 执行主脚本
+      run: |
+        python  main/main.py
+        
+    - name: 如果有更改，则提交并推送(Commit and push if changed)  # 如果有更改，则提交并推送
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add -A
+        if ! git diff --staged --quiet; then
+          git commit -m "Auto-update live files"
+          git pull --rebase
+          git push
+        fi
+        
+
+
+   
