@@ -1,78 +1,76 @@
-# 工作流名称（显示在 GitHub Actions 页面）
 name: Auto Merge IPTV Sources & Update File
 
-# 触发条件配置
 on:
-  # 1. 定时触发：每 3 天 UTC 时间 2:00 执行（对应上海时间 10:00）
   schedule:
     - cron: '0 2 */3 * *'
-  # 2. 手动触发：允许在 GitHub Actions 页面手动点击运行
   workflow_dispatch:
 
-# 环境变量全局配置
 env:
-  TZ: Asia/Shanghai  # 设置时区为上海，日志时间更直观
-  PYTHON_VERSION: '3.10'  # 指定 Python 版本，与脚本兼容
+  TZ: Asia/Shanghai
+  PYTHON_VERSION: '3.10'
+  # 新增：目标仓库地址，避免重复书写
+  TARGET_REPO: "Lei9008/IPTV"
 
-# 任务配置
 jobs:
   merge-and-push-iptv:
-    # 运行环境：使用最新版 Ubuntu
     runs-on: ubuntu-latest
-
-    # 任务步骤
     steps:
-      # 步骤 1：检出仓库代码（将仓库内容拉取到运行器）
       - name: Checkout Repository Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # 拉取完整仓库历史，避免提交冲突
+          fetch-depth: 0
 
-      # 步骤 2：设置 Python 环境（匹配脚本所需的 Python 版本）
       - name: Set Up Python ${{ env.PYTHON_VERSION }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'  # 缓存 pip 依赖，提升后续运行速度
+          cache: 'pip'
 
-      # 步骤 3：安装 Python 依赖（仅需 requests，与脚本对应）
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests  # 脚本核心依赖
+          pip install requests
 
-      # 步骤 4：执行 IPTV 合并脚本（生成 output/Live_iptv.txt）
       - name: Run IPTV Merge Script
         run: |
-          python main/main.py
-        working-directory: ./  # 工作目录（脚本所在目录，根目录则为 ./）
+          # 替换为你的实际脚本文件名（务必确认路径正确）
+          python iptv_merge.py
+        working-directory: ./
 
-      # 步骤 5：配置 Git 用户信息（必须，否则无法提交代码）
       - name: Configure Git User Identity
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 步骤 6：替换远程仓库地址（使用 PAT 认证，解决 403 权限问题）
-      - name: Update Git Remote URL with PAT
+      # 核心修复：优化 PAT 注入和远程地址替换，添加验证步骤
+      - name: Update Git Remote URL with PAT (Ensure Effective)
         env:
-          # 引入仓库 Secrets 中配置的 PAT（名称需与你配置的一致，此处为 IPTV_PUSH_TOKEN）
+          # 确认：Secrets 中的名称必须与这里完全一致（IPTV_PUSH_TOKEN）
           IPTV_PUSH_TOKEN: ${{ secrets.IPTV_PUSH_TOKEN }}
         run: |
-          git remote set-url origin https://${IPTV_PUSH_TOKEN}@github.com/Lei9008/IPTV.git
+          # 第一步：验证 PAT 是否注入成功（调试用，可保留）
+          if [ -z "$IPTV_PUSH_TOKEN" ]; then
+            echo "Error: IPTV_PUSH_TOKEN is empty! Please check Secrets configuration."
+            exit 1
+          fi
+          
+          # 第二步：替换远程仓库地址（语法严格，无空格）
+          git remote set-url origin https://${IPTV_PUSH_TOKEN}@github.com/${{ env.TARGET_REPO }}.git
+          
+          # 第三步：验证远程地址是否替换成功（调试用，可保留）
+          echo "Current Git remote origin: "
+          git remote -v
+          
+          # 第四步：拉取远程最新代码（提前拉取，避免后续 commit 后冲突）
+          git pull origin main --rebase || true
 
-      # 步骤 7：提交并推送更改（仅当文件有变更时执行）
       - name: Commit and Push Changes
         run: |
-          # 添加所有变更的文件（重点是 output/Live_iptv.txt）
           git add -A
-
-          # 检查是否有未提交的变更，有则提交，无则跳过
+          
           if ! git diff --staged --quiet; then
             git commit -m "Auto-merge IPTV sources: Update Live_iptv.txt"
-            # 拉取远程最新代码（避免推送冲突，添加容错）
-            git pull --rebase origin main || true
-            # 推送至 main 分支
+            # 推送时直接使用已替换的远程地址（无需再指定地址）
             git push origin main
             echo "Successfully pushed changes to remote repository."
           else
