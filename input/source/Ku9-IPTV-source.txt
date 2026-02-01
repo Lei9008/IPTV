@@ -68,9 +68,9 @@ CETV4,webview://https://tv.gxtv.cn/channel/channelivePlay_67eace939278435bb4bca9
 辽宁卫视,webview://https://yangshipin.cn/tv/home?pid=600002505
 内蒙古卫视,webview://https://yangshipin.cn/tv/home?pid=600190401
 甘肃卫视,http://38.75.136.137:98/gslb/dsdqpub/gswshd.m3u8?auth=testpub
-甘肃卫视,http://live.zohi.tv/video/s10001-fztv-3/index.m3u8
 甘肃卫视,https://t.freetv.fun/live/gan-su-wei-shi.php
 甘肃卫视,https://t.freetv.fun/live/gan-su-wei-shi-3.m3u8
+甘肃卫视,http://k.061899.xyz/k.php?id=gsws
 宁夏卫视,webview://https://yangshipin.cn/tv/home?pid=600190737
 青海卫视,webview://https://yangshipin.cn/tv/home?pid=600190406
 山西卫视,webview://https://yangshipin.cn/tv/home?pid=600190407
