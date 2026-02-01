@@ -14,7 +14,6 @@ CCTV7,webview://https://yangshipin.cn/tv/home?pid=600004092
 CCTV8,webview://https://yangshipin.cn/tv/home?pid=600001803
 CCTV9,webview://https://yangshipin.cn/tv/home?pid=600004078
 CCTV10,webview://https://tv.cctv.com/live/cctv10/
-# CCTV10,webview://https://yangshipin.cn/tv/home?pid=600001805
 CCTV11,webview://https://yangshipin.cn/tv/home?pid=600001806
 CCTV12,webview://https://yangshipin.cn/tv/home?pid=600001807
 CCTV13,webview://https://yangshipin.cn/tv/home?pid=600001811
