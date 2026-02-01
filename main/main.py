@@ -64,25 +64,24 @@ def get_url_content(url):
         print(f"获取链接内容失败：{url}，错误信息：{str(e)}")
         return ""
 
-# ===================== 工具函数：从demo.txt提取分类 =====================
+# ===================== 工具函数：从demo.txt提取分类（适配与main.py同级） =====================
 def extract_genres_from_demo(demo_file_name="demo.txt"):
     """
-    从IPTV根目录的demo.txt中提取所有#genre#标记的分类（适配：IPTV/main/main.py & IPTV/demo.txt）
+    从与main.py同级的demo.txt中提取所有#genre#标记的分类
     :param demo_file_name: demo.txt文件名
     :return: 提取到的唯一分类列表
     """
     target_genres = []
     try:
-        # 1. 路径回溯：找到IPTV根目录下的demo.txt
-        current_script_path = os.path.abspath(__file__)  # 获取main.py完整路径
-        main_folder_path = os.path.dirname(current_script_path)  # 获取main文件夹路径
-        iptv_root_path = os.path.dirname(main_folder_path)  # 回溯到IPTV根目录
-        demo_file_path = os.path.join(iptv_root_path, demo_file_name)  # 拼接demo.txt完整路径
+        # 核心修改：直接获取main.py所在目录（即demo.txt所在目录），无需回溯
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        # 拼接demo.txt完整路径（脚本目录 + 文件名，同级拼接）
+        demo_file_path = os.path.join(script_dir, demo_file_name)
         
         # 2. 检查demo.txt是否存在
         if not os.path.exists(demo_file_path):
             print(f"错误：demo.txt文件不存在（路径：{demo_file_path}）")
-            print(f"请将demo.txt放在IPTV根目录：{iptv_root_path}")
+            print(f"请将demo.txt放在main.py同级目录：{script_dir}")
             return target_genres
         
         # 3. 读取并提取分类
