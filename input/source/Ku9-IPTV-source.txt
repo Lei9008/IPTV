@@ -1,4 +1,4 @@
-央卫频道,#genre#
+央视频道,#genre#
 CCTV4K,webview://https://yangshipin.cn/tv/home?pid=600002264
 CCTV8K,webview://https://yangshipin.cn/tv/home?pid=600156816
 CCTV1,webview://https://yangshipin.cn/tv/home?pid=600001859
