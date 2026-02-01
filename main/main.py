@@ -1,7 +1,7 @@
 import requests
 import os
 
-# ===================== 配置项：GitHub 镜像/代理前缀（可按需更新） =====================
+# ===================== 配置项：GitHub 镜像/代理前缀 + 匹配模式（可按需更新） =====================
 # 常用 GitHub RAW 镜像域名（国内可访问优先）
 GITHUB_MIRRORS = [
     "raw.gitmirror.com",
@@ -15,6 +15,11 @@ GITHUB_PROXY_PREFIXES = [
     "https://gh-proxy.com/",
     "https://raw.githubusercontent.com.cnpmjs.org/"
 ]
+
+# demo.txt 匹配模式配置：True=精准匹配（推荐），False=模糊匹配（兼容旧版）
+# 精准匹配：仅匹配 IPTV 行中 ",#genre#" 前的分类与 demo.txt 分类完全一致
+# 模糊匹配：只要 IPTV 行中包含 demo.txt 分类即保留（可能有无关内容误匹配）
+ACCURATE_MATCH_MODE = True
 
 # ===================== 工具函数：GitHub URL 处理（拆分镜像/代理 + 格式校验） =====================
 def get_mirror_url(raw_url):
@@ -95,12 +100,44 @@ def get_url_content(url):
     # 第三步：返回结果（无论是否成功，统一处理为字符串，避免None）
     return content if content is not None else ""
 
-# ===================== 工具函数：从demo.txt提取分类（适配与main.py同级） =====================
+# ===================== 新增：demo.txt 辅助工具（格式规范 + 分类解析） =====================
+def normalize_genre(genre):
+    """
+    分类标准化处理（去除前后空格、转为统一大小写，避免因格式差异导致匹配失败）
+    :param genre: 原始分类字符串
+    :return: 标准化后的分类字符串
+    """
+    # 去除前后空格，转为小写（不区分大小写匹配，提升易用性）
+    return genre.strip().lower()
+
+def parse_single_demo_line(line):
+    """
+    解析 demo.txt 单行内容，提取有效分类（支持注释、纯分类、带,#genre#格式）
+    :param line: demo.txt 单行文本
+    :return: 有效分类（无有效分类返回None）
+    """
+    line = line.strip()
+    
+    # 1. 忽略空行和注释行（以 # 开头的视为注释）
+    if not line or line.startswith("#"):
+        return None
+    
+    # 2. 解析带 ,#genre# 格式的行（兼容旧版 demo.txt）
+    if ",#genre#" in line:
+        genre = line.split(",#genre#")[0]
+        normalized_genre = normalize_genre(genre)
+        return normalized_genre if normalized_genre else None
+    
+    # 3. 解析纯分类行（新增：支持直接写分类，无需拼接 ,#genre#）
+    normalized_genre = normalize_genre(line)
+    return normalized_genre if normalized_genre else None
+
+# ===================== 优化：demo.txt 分类提取（增强格式支持 + 标准化） =====================
 def extract_genres_from_demo(demo_file_name="demo.txt"):
     """
-    从与main.py同级的demo.txt中提取所有#genre#标记的分类
+    从与main.py同级的demo.txt中提取有效分类（支持多种格式，自动标准化去重）
     :param demo_file_name: demo.txt文件名
-    :return: 提取到的唯一分类列表
+    :return: 提取到的唯一、标准化分类列表
     """
     target_genres = []
     try:
@@ -111,35 +148,59 @@ def extract_genres_from_demo(demo_file_name="demo.txt"):
         if not os.path.exists(demo_file_path):
             print(f"❌  错误：demo.txt文件不存在（路径：{demo_file_path}）")
             print(f"📌  请将demo.txt放在main.py同级目录：{script_dir}")
+            print(f"📌  demo.txt支持格式：1. 纯分类（如：综艺频道） 2. 带标记（如：综艺频道,#genre#） 3. 注释（以#开头）")
             return target_genres
         
-        # 读取并提取分类
+        # 读取并逐行解析分类
         with open(demo_file_path, "r", encoding="utf-8") as f:
             for line_num, line in enumerate(f, 1):
-                line = line.strip()
-                if not line:
-                    continue
-                
-                if ",#genre#" in line:
-                    genre = line.split(",#genre#")[0].strip()
-                    if genre:
-                        target_genres.append(genre)
-                        print(f"📌  从demo.txt第{line_num}行提取到分类：{genre}")
+                genre = parse_single_demo_line(line)
+                if genre:
+                    target_genres.append(genre)
+                    print(f"📌  从demo.txt第{line_num}行提取到分类：{genre}（原始行：{line.strip()}）")
     
     except Exception as e:
         print(f"❌  读取/解析demo.txt失败，错误信息：{str(e)}")
     
-    # 去重并返回
+    # 去重并返回（标准化后去重，避免重复匹配）
     unique_genres = list(set(target_genres))
-    print(f"\n🎉  demo.txt分类提取完成，共获取{len(unique_genres)}个唯一分类：{unique_genres}")
+    print(f"\n🎉  demo.txt分类提取完成，共获取{len(unique_genres)}个唯一标准化分类：{unique_genres}")
     return unique_genres
 
-# ===================== 工具函数：按分类筛选内容 =====================
+# ===================== 新增：精准/模糊匹配核心逻辑 =====================
+def is_line_match_genre(line, target_genres):
+    """
+    判断单条IPTV行是否匹配目标分类（支持精准/模糊两种模式）
+    :param line: IPTV单行内容
+    :param target_genres: 标准化后的目标分类列表
+    :return: 匹配返回True，不匹配返回False
+    """
+    line_strip = line.strip()
+    if not line_strip or not target_genres:
+        return False
+    
+    # 标准化行内容（用于不区分大小写匹配）
+    line_normalized = line_strip.lower()
+    
+    if ACCURATE_MATCH_MODE:
+        # 精准匹配：仅提取 IPTV 行中 ,#genre# 前的分类，与目标分类完全一致
+        if ",#genre#" in line_normalized:
+            line_genre = line_normalized.split(",#genre#")[0].strip()
+            # 检查提取的分类是否在目标分类列表中
+            return line_genre in target_genres
+        else:
+            # 无 ,#genre# 标记的行，精准匹配模式下忽略
+            return False
+    else:
+        # 模糊匹配：只要行内容包含任意目标分类即匹配（兼容旧版逻辑）
+        return any(genre in line_normalized for genre in target_genres)
+
+# ===================== 优化：按分类筛选内容（新增精准/模糊匹配开关） =====================
 def filter_content_by_genres(content, target_genres):
     """
-    筛选内容，仅保留包含目标分类的行（适配IPTV文本格式，保留原格式）
+    筛选内容，仅保留包含目标分类的行（支持精准/模糊匹配，保留原格式）
     :param content: 原始URL获取的文本内容
-    :param target_genres: 从demo.txt提取的目标分类列表
+    :param target_genres: 从demo.txt提取的标准化目标分类列表
     :return: 筛选后的有效内容
     """
     if not content or not target_genres:
@@ -147,10 +208,11 @@ def filter_content_by_genres(content, target_genres):
     
     filtered_lines = []
     lines = content.split("\n")
+    match_mode = "精准匹配" if ACCURATE_MATCH_MODE else "模糊匹配"
+    print(f"📌  当前使用 {match_mode} 模式筛选内容...")
+    
     for line in lines:
-        line_strip = line.strip()
-        # 包含任意一个目标分类且非空行，才保留
-        if any(genre in line_strip for genre in target_genres) and line_strip:
+        if is_line_match_genre(line, target_genres):
             filtered_lines.append(line)
     
     filtered_content = "\n".join(filtered_lines)
