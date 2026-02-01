@@ -120,11 +120,11 @@ CCTV14,webview://https://tv.cctv.com/live/cctvchild/
 
 浙江频道,#genre#
 浙江卫视,webview://https://yangshipin.cn/tv/home?pid=600002520
-浙江新闻,webview://https://www.cztv.com/liveTV/107
 浙江钱江,webview://https://www.cztv.com/liveTV/102
 浙江经济生活,webview://https://www.cztv.com/liveTV/103
 浙江教科影视,webview://https://www.cztv.com/liveTV/104
 浙江民生休闲,webview://https://www.cztv.com/liveTV/106
+浙江新闻,webview://https://www.cztv.com/liveTV/107
 浙江国际,webview://https://www.cztv.com/liveTV/110
 浙江之江纪录,webview://https://www.cztv.com/liveTV/112
 
