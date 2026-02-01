@@ -44,29 +44,4 @@ jobs:
       run: |
         python main/main.py
         
-    - name: 如果有更改，则提交并推送(Commit and push if changed)  # 修正推送逻辑，添加PAT认证
-      env:
-        # 引入仓库Secrets中配置的PAT（名称要和你配置的一致，例如IPTV_PUSH_TOKEN）
-        IPTV_PUSH_TOKEN: ${{ secrets.IPTV_PUSH_TOKEN }}
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        
-        # 步骤1：替换远程仓库地址，使用PAT认证（核心修正，解决403）
-        git remote set-url origin https://${IPTV_PUSH_TOKEN}@github.com/Lei9008/IPTV.git
-        
-        # 步骤2：添加所有更改
-        git add -A
-        
-        # 步骤3：仅当有变更时才提交
-        if ! git diff --staged --quiet; then
-          git commit -m "Auto-update live files"
-          
-          # 步骤4：拉取远程最新代码（避免推送冲突，添加|| true容错）
-          git pull --rebase origin main || true
-          
-          # 步骤5：推送代码（使用PAT认证的远程地址）
-          git push origin main
-        else
-          echo "No changes to commit, skip push."
-        fi
+ 
