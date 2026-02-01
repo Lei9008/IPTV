@@ -16,36 +16,42 @@ GITHUB_PROXY_PREFIXES = [
     "https://raw.githubusercontent.com.cnpmjs.org/"
 ]
 
-# ===================== 工具函数：GitHub URL 处理（拆分镜像/代理） =====================
+# ===================== 工具函数：GitHub URL 处理（拆分镜像/代理 + 格式校验） =====================
 def get_mirror_url(raw_url):
     """
-    生成镜像域名的URL（仅处理GitHub RAW地址）
+    生成镜像域名的URL（仅处理GitHub RAW地址，增加格式校验）
     :param raw_url: 原始GitHub RAW URL
     :return: 镜像处理后的URL
     """
+    # 增加URL格式校验，提示用户正确格式
     if not raw_url.startswith("https://raw.githubusercontent.com"):
+        print(f"⚠️  警告：URL格式错误，仅支持 GitHub RAW 地址（以 https://raw.githubusercontent.com 开头）")
+        print(f"❌  当前错误URL：{raw_url}")
         return raw_url
     
     if GITHUB_MIRRORS:
         mirror_domain = GITHUB_MIRRORS[0]
         mirror_url = raw_url.replace("raw.githubusercontent.com", mirror_domain)
-        print(f"生成镜像URL：{raw_url} -> {mirror_url}")
+        print(f"✅  生成镜像URL：{raw_url} -> {mirror_url}")
         return mirror_url
     return raw_url
 
 def get_proxy_url(raw_url):
     """
-    生成带代理前缀的URL（仅处理GitHub RAW地址）
+    生成带代理前缀的URL（仅处理GitHub RAW地址，增加格式校验）
     :param raw_url: 原始GitHub RAW URL
     :return: 代理处理后的URL
     """
+    # 增加URL格式校验，提示用户正确格式
     if not raw_url.startswith("https://raw.githubusercontent.com"):
+        print(f"⚠️  警告：URL格式错误，仅支持 GitHub RAW 地址（以 https://raw.githubusercontent.com 开头）")
+        print(f"❌  当前错误URL：{raw_url}")
         return raw_url
     
     if GITHUB_PROXY_PREFIXES:
         proxy_prefix = GITHUB_PROXY_PREFIXES[0]
         proxy_url = proxy_prefix + raw_url
-        print(f"生成代理URL：{raw_url} -> {proxy_url}")
+        print(f"✅  生成代理URL：{raw_url} -> {proxy_url}")
         return proxy_url
     return raw_url
 
@@ -63,10 +69,10 @@ def send_request(target_url):
         response = requests.get(target_url, headers=headers, timeout=30)
         response.raise_for_status()
         response.encoding = response.apparent_encoding
-        print(f"成功获取链接内容：{target_url}")
+        print(f"🎉  成功获取链接内容：{target_url}")
         return response.text
     except Exception as e:
-        print(f"访问失败：{target_url}，错误信息：{str(e)}")
+        print(f"❌  访问失败：{target_url}，错误信息：{str(e)}")
         return None
 
 # ===================== 工具函数：获取单个URL文本内容（实现镜像→代理自动重试） =====================
@@ -82,7 +88,7 @@ def get_url_content(url):
     
     # 第二步：如果镜像访问失败，切换为代理模式重试
     if content is None:
-        print("\n--- 镜像访问失败，尝试切换为代理模式重试 ---")
+        print("\n--- 📌 镜像访问失败，尝试切换为代理模式重试 ---")
         proxy_url = get_proxy_url(url)
         content = send_request(proxy_url)
     
@@ -103,8 +109,8 @@ def extract_genres_from_demo(demo_file_name="demo.txt"):
         demo_file_path = os.path.join(script_dir, demo_file_name)
         
         if not os.path.exists(demo_file_path):
-            print(f"错误：demo.txt文件不存在（路径：{demo_file_path}）")
-            print(f"请将demo.txt放在main.py同级目录：{script_dir}")
+            print(f"❌  错误：demo.txt文件不存在（路径：{demo_file_path}）")
+            print(f"📌  请将demo.txt放在main.py同级目录：{script_dir}")
             return target_genres
         
         # 读取并提取分类
@@ -118,14 +124,14 @@ def extract_genres_from_demo(demo_file_name="demo.txt"):
                     genre = line.split(",#genre#")[0].strip()
                     if genre:
                         target_genres.append(genre)
-                        print(f"从demo.txt第{line_num}行提取到分类：{genre}")
+                        print(f"📌  从demo.txt第{line_num}行提取到分类：{genre}")
     
     except Exception as e:
-        print(f"读取/解析demo.txt失败，错误信息：{str(e)}")
+        print(f"❌  读取/解析demo.txt失败，错误信息：{str(e)}")
     
     # 去重并返回
     unique_genres = list(set(target_genres))
-    print(f"\ndemo.txt分类提取完成，共获取{len(unique_genres)}个唯一分类：{unique_genres}")
+    print(f"\n🎉  demo.txt分类提取完成，共获取{len(unique_genres)}个唯一分类：{unique_genres}")
     return unique_genres
 
 # ===================== 工具函数：按分类筛选内容 =====================
@@ -148,7 +154,7 @@ def filter_content_by_genres(content, target_genres):
             filtered_lines.append(line)
     
     filtered_content = "\n".join(filtered_lines)
-    print(f"内容筛选完成，保留{len(filtered_lines)}条符合分类的记录\n")
+    print(f"🎉  内容筛选完成，保留{len(filtered_lines)}条符合分类的记录\n")
     return filtered_content
 
 # ===================== 核心函数：合并并保存筛选后的内容 =====================
@@ -162,13 +168,13 @@ def merge_url_contents(url_list, save_file_path="output/Live_iptv.txt"):
     # 第一步：提取目标分类（无有效分类则终止）
     target_genres = extract_genres_from_demo()
     if not target_genres:
-        print("未提取到有效分类，终止合并流程")
+        print("❌  未提取到有效分类，终止合并流程")
         return ""
     
     # 第二步：遍历URL，获取并筛选内容
     merged_content = ""
     for url in url_list:
-        print(f"\n--- 开始处理URL：{url} ---")
+        print(f"\n--- 📌 开始处理URL：{url} ---")
         raw_content = get_url_content(url)
         if raw_content:
             filtered_content = filter_content_by_genres(raw_content, target_genres)
@@ -181,25 +187,24 @@ def merge_url_contents(url_list, save_file_path="output/Live_iptv.txt"):
         folder_path = os.path.dirname(save_file_path)
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-            print(f"成功创建文件夹：{folder_path}")
+            print(f"🎉  成功创建文件夹：{folder_path}")
         
         # 写入文件（UTF-8编码避免乱码）
         with open(save_file_path, "w", encoding="utf-8") as f:
             f.write(merged_content)
-        print(f"\n合并完成，结果已保存到：{os.path.abspath(save_file_path)}")
+        print(f"\n🎉  合并完成，结果已保存到：{os.path.abspath(save_file_path)}")
     else:
-        print("\n未获取到符合分类的有效内容，合并失败")
+        print("\n❌  未获取到符合分类的有效内容，合并失败")
     
     return merged_content
 
-# ===================== 主程序入口 =====================
+# ===================== 主程序入口（已修正正确的GitHub RAW地址） =====================
 if __name__ == "__main__":
-    # 目标IPTV数据源URL列表
+    # 目标IPTV数据源URL列表（正确的GitHub RAW地址，可直接抓取纯文本）
     target_urls = [
-        "https://github.com/Lei9008/IPTV/main/input/source/Ku9-IPTV-source.txt",
-        "https://github.com/Lei9008/iptv_selfuse/master/output/user_result.txt"
+        "https://raw.githubusercontent.com/Lei9008/IPTV/main/input/source/Ku9-IPTV-source.txt",
+        "https://raw.githubusercontent.com/Lei9008/iptv_selfuse/master/output/user_result.txt"
     ]
     
     # 调用核心合并函数
     merge_url_contents(target_urls)
-
