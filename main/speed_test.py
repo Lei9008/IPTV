@@ -13,10 +13,10 @@ try:
 except ImportError:
     tqdm = lambda x, desc=None: x  # 兼容无tqdm环境
 
-# ===================== 核心配置项（重点：优化超时配置） =====================
+# ===================== 核心配置项 =====================
 # 测速参数（分离连接超时和读取超时，避免卡住）
 DOWNLOAD_TEST_SIZE = 1024 * 1024 * 2  # 2MB
-CONNECT_TIMEOUT = 5  # 连接超时（秒）：建立网络连接的超时时间（短一点，避免挂起）
+CONNECT_TIMEOUT = 5  # 连接超时（秒）：建立网络连接的超时时间
 READ_TIMEOUT = 15    # 读取超时（秒）：获取数据的超时时间
 TOTAL_TIMEOUT = (CONNECT_TIMEOUT, READ_TIMEOUT)  # 组合超时（全覆盖）
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -70,11 +70,11 @@ def extract_all_streaming_links(text_content: str) -> List[str]:
                 
                 start_index = link_end
     
-    # 去重+限制数量（避免过多链接导致卡住，可选调整）
-    unique_links = list(dict.fromkeys(streaming_links))[:50]  # 最多提取50个链接，减少阻塞
+    # 去重+限制数量（避免过多链接导致卡住）
+    unique_links = list(dict.fromkeys(streaming_links))[:50]  # 最多提取50个链接
     return unique_links
 
-# ===================== 工具函数：下载网络URL文件（添加超时兜底+代理） =====================
+# ===================== 工具函数：下载网络URL文件（修正url参数传递） =====================
 def get_streaming_links_from_network_url(network_url: str) -> List[str]:
     print(f"📥  开始下载并解析：{network_url}")
     print(f"⌛  超时配置：连接{CONNECT_TIMEOUT}秒，读取{READ_TIMEOUT}秒")
@@ -90,9 +90,9 @@ def get_streaming_links_from_network_url(network_url: str) -> List[str]:
         if USE_PROXY:
             request_kwargs["proxies"] = PROXY_CONFIG
         
-        # 发送请求（添加断点反馈）
+        # 修正：显式传入 url 参数（核心错误修复）
         print("🔌  正在建立网络连接...")
-        response = requests.get(**request_kwargs)
+        response = requests.get(network_url, **request_kwargs)  # 此处添加 network_url
         print("✅  连接成功，正在获取文件内容...")
         response.raise_for_status()
         
@@ -112,7 +112,7 @@ def get_streaming_links_from_network_url(network_url: str) -> List[str]:
     
     return []
 
-# ===================== 核心函数：单个链接测速（添加强制跳过逻辑） =====================
+# ===================== 核心函数：单个链接测速（修正url参数传递） =====================
 def test_single_stream_link_speed(link: str) -> Optional[Dict]:
     result = {
         "link": link,
@@ -133,9 +133,9 @@ def test_single_stream_link_speed(link: str) -> Optional[Dict]:
         request_kwargs["proxies"] = PROXY_CONFIG
 
     try:
-        # 1. 测试响应延迟
+        # 1. 测试响应延迟（修正：传入 link 作为 url 参数）
         start_time = time.time()
-        response = requests.get(**request_kwargs)
+        response = requests.get(link, **request_kwargs)  # 此处添加 link
         response.raise_for_status()
         end_time = time.time()
 
@@ -178,7 +178,7 @@ def test_single_stream_link_speed(link: str) -> Optional[Dict]:
 
     return result
 
-# ===================== 核心函数：批量测速（添加断点反馈，避免假死） =====================
+# ===================== 核心函数：批量测速 =====================
 def batch_test_stream_links(network_url_list: List[str]) -> List[Dict]:
     all_stream_links = []
     for url in network_url_list:
