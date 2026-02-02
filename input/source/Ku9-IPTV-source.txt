@@ -149,6 +149,28 @@ CCTV-17,webview://https://www.yangshipin.cn/tv/home?pid=600001810
 西藏卫视,webview://https://yangshipin.cn/tv/home?pid=600190403
 陕西农林,webview://http://live.snrtv.com/nl
 
+浙江卫视,webview://https://www.xuexi.cn/xxqg.html?id=0b0936946bd7416fa80aaeb4072f369a
+浙江卫视,webview://https://zmtv.cztv.com/cmsh5-share/prod/cztv-tvLive/index.html
+东方卫视,webview://https://live.kankanews.com/huikan
+江苏卫视,webview://https://live.jstv.com/?channelld=534
+北京卫视,webview://https://www.xuexi.cn/xxqg.html?id=b2e730bcb7e8468ea028135c602a561d
+北京卫视,webview://https://www.brtn.cn/btv/btvsy_index
+北京卫视,webview://https://www.yangshipin.cn/tv/home?pid=600002309
+深圳卫视,webview://https://www.sztv.com.cn/pindao/index.html?id=7867
+吉林卫视,webview://https://www.jlntv.cn/tv?id=104
+天津卫视,webview://https://www.xuexi.cn/xxqg.html?id=f34309e518fb41579c46cbef4d56c51d
+天津卫视,webview://https://yangshipin.cn/tv/home?pid=6000152137
+山西卫视,webview://https://www.sxrtv.com/tv/index.shtml
+广东卫视,webview://https://www.gdtv.cn/tvChannelDetail/43
+新疆卫视,webview://https://www.xjtvs.com.cn/column/tv/434?channelld=1
+湖北卫视,webview://https://www.xuexi.cn/xxqg.html?id=894c6f103e094ab58f51cf0f96870a3d
+甘肃卫视,webview://https://www.gstv.com.cn/zxc.jhtml
+陕西卫视,webview://http://www.sxtvs.com/sxtvs_sxws/index.html
+青海卫视,webview://http://www.qhbtv.com/new_index/live/folder2646/
+内蒙古卫视,webview://https://www.nmtv.cn/liveTv
+
+
+
 
 动漫频道,#genre#
 CCTV14,webview://https://yangshipin.cn/tv/home?pid=600001809
