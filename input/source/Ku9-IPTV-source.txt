@@ -169,8 +169,8 @@ CCTV-17,webview://https://www.yangshipin.cn/tv/home?pid=600001810
 
 
 动漫频道,#genre#
-CCTV14,webview://https://yangshipin.cn/tv/home?pid=600001809
-CCTV14,webview://https://tv.cctv.com/live/cctvchild/
+CCTV-14,webview://https://yangshipin.cn/tv/home?pid=600001809
+CCTV-14,webview://https://tv.cctv.com/live/cctvchild/
 山东少儿,webview://https://v.iqilu.com/live/sepd/
 浙江少儿,webview://https://www.cztv.com/liveTV/108
 广东少儿,webview://https://www.gdtv.cn/tvChannelDetail/54
