@@ -1,0 +1,12 @@
+IPTV 可播放频道列表（频道名 + 播放URL）
+================================================================================
+生成时间：2026-02-02 20:29:02
+可播放频道总数：6
+================================================================================
+
+1. 九品芝麻官	https://alimov2.a.kwimgs.com/upic/2021/12/28/11/BMjAyMTEyMjgxMTIyMTJfNDAzMDAxOTlfNjM2NjgxODA5MTBfMF8z_b_B6a0bcfcdbdaac183fa7dcbcd3e11bcaf.mp4
+2. 无间道2	https://vip.lzcdn2.com/20220323/300_8be28e1c/index.m3u8
+3. 澳门风云2	https://vip.lz-cdn8.com/20220903/25590_a12ec6f7/index.m3u8
+4. 澳门风云3	https://vip.lz-cdn8.com/20220903/25592_5fdbb860/index.m3u8
+5. 赌神2	https://vip.lz-cdn.com/20220622/20003_820596d4/index.m3u8
+6. 逃学威龙2	https://alimov2.a.kwimgs.com/upic/2021/12/28/16/BMjAyMTEyMjgxNjUxMzhfNDAzMDAxOTlfNjM2ODQ1ODYxNzhfMF8z_b_Ba5bdfedb34d432e906dbc401975d5387.mp4
