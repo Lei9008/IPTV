@@ -1,0 +1,56 @@
+流媒体链接测速结果汇总
+测速时间：2026-02-02 19:19:53
+超时配置：连接5秒，读取15秒
+========================================================================================================================
+序号   可用状态     延迟(ms)       下载速度(Mbps)         完整链接 | 错误信息
+------------------------------------------------------------------------------------------------------------------------
+1    ✅ 可用     602.42       0.0                https://cdn5.yzzy-tv-cdn.com/20220607/22255_9e00edb7/index.m3u8 | 未获取到有效流媒体数据
+2    ❌ 不可用    0.0          0.0                https://vip.ffzy-play.com/20221011/100_192cffb5/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+3    ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221129/9336_58c74ab9/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+4    ❌ 不可用    0.0          0.0                https://vip.ffzy-play2.com/20221021/232_89153806/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+5    ❌ 不可用    0.0          0.0                https://vip.ffzy-play2.com/20221021/234_50a8a4b6/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+6    ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221113/6503_476b3f6c/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+7    ❌ 不可用    0.0          0.0                https://vip.ffzy-play.com/20221017/1473_691592bd/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+8    ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221129/9376_7f06747a/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+9    ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221206/10068_4bfccafe/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+10   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221019/168_f44e1477/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+11   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221019/84_a64c541f/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+12   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4682_5ffb4872/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+13   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20230205/13419_960c8951/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+14   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4681_38b34b56/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+15   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20230507/24165_799a7b4a/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+16   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221129/9344_44b64a1a/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+17   ❌ 不可用    0.0          0.0                https://vip.ffzy-play.com/20221017/1618_2e6027ee/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+18   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4686_d56a5b6c/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+19   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221116/7250_93049e15/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+20   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221129/9346_67ee848d/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+21   ❌ 不可用    0.0          0.0                https://ukzy.ukubf3.com/20220402/N3nfxJ6i/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://ukzy.
+22   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221021/494_7e9bef86/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+23   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221206/8266_97359a93/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+24   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221129/9292_f6b1a849/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+25   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4687_1e3f6f8c/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+26   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221112/6044_68796407/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+27   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20230413/22211_bfb8d6b2/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+28   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221129/9355_e351af0a/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+29   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221112/3509_1a0443fd/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+30   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221020/264_d622ce7f/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+31   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221027/2108_7c929ef0/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+32   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4694_6f7f88ac/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+33   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221112/3526_ba428b29/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+34   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221224/9583_f95a6383/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+35   ❌ 不可用    0.0          0.0                https://vip.ffzy-play2.com/20221019/50_7eedcf07/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+36   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20230409/21638_281e50c4/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+37   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221117/5047_beb0a18c/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+38   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221209/9096_70ae66c7/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+39   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4538_ddf6020e/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+40   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221112/3550_cbc3226a/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+41   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221128/9052_3612e0ff/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+42   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4703_5132dc98/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+43   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221115/4539_8b9150f6/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+44   ❌ 不可用    0.0          0.0                https://vip.ffzy-play2.com/20221019/18_d8d1ad76/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+45   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221128/8945_9b4193cd/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+46   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221112/3556_7788de32/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+47   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221117/5171_c2d4c959/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+48   ❌ 不可用    0.0          0.0                https://vip.ffzy-play7.com/20221112/3563_422b85c5/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+49   ❌ 不可用    0.0          0.0                https://vip.ffzy-play6.com/20221116/7264_5b0b594e/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
+50   ❌ 不可用    0.0          0.0                https://vip.ffzy-play.com/20221017/1754_95490c99/index.m3u8 | 未知错误：403 Client Error: Forbidden for url: https://vip.f
