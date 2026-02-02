@@ -1,0 +1,74 @@
+
+name: speed_test
+
+on:
+  schedule:
+    - cron: '0 2 */3 * *'
+  workflow_dispatch:
+
+env:
+  TZ: Asia/Shanghai
+  PYTHON_VERSION: '3.10'
+  TARGET_REPO: "Lei9008/IPTV"
+
+jobs:
+  merge-and-push-iptv:
+    runs-on: ubuntu-latest
+    steps:
+      # 步骤1：检出代码（必须带 persist-credentials: false，清空默认凭证）
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false  # 关键：清空默认的 github-actions[bot] 凭证
+
+      # 步骤2：设置Python环境
+      - name: Set Up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      # 步骤3：安装依赖
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      # 步骤4：执行合并脚本（替换为你的实际脚本名）
+      - name: Run IPTV Merge Script
+        run: python main/speed_test.py
+        working-directory: ./
+
+      # 步骤5：配置Git用户信息
+      - name: Configure Git User
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+
+      # 步骤6：强制替换远程地址（核心修复，提前到commit前，且强制覆盖）
+      - name: Force Update Git Remote with PAT
+        env:
+          IPTV_PUSH_TOKEN: ${{ secrets.IPTV_PUSH_TOKEN }}
+        run: |
+          # 强制替换远程地址，无任何容错，确保命令执行
+          git remote rm origin
+          git remote add origin https://${IPTV_PUSH_TOKEN}@github.com/${{ env.TARGET_REPO }}.git
+          # 打印远程地址，确认替换成功
+          echo "=== Current Git Remote ==="
+          git remote -v
+          # 提前拉取最新代码，避免冲突
+          git pull origin main --rebase || echo "No remote changes to pull"
+
+      # 步骤7：提交并推送（仅用替换后的origin）
+      - name: Commit and Push
+        run: |
+          git add -A
+          if ! git diff --staged --quiet; then
+            git commit -m "Auto-merge IPTV sources: Update Live_iptv.txt"
+            # 直接推送，使用已配置的带PAT的origin
+            git push origin main
+            echo "Push success!"
+          else
+            echo "No changes to push"
+          fi
