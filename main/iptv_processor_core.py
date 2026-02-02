@@ -558,13 +558,12 @@ MAX_REDIRECTS = 5         # 最大重定向次数
 
 使用说明（直接复制运行）
 
-1. 将上述脚本保存为 iptv_processor_core_optimized.py（替换原有脚本），配置文件保存为 config.py，放在同一目录（如 main 文件夹下）。
+1. 将上述脚本保存为 iptv_processor_core.py（替换原有报错脚本），配置文件保存为 config.py，放在同一目录（如 main 文件夹下）。
 
 2. 安装依赖（仅2个核心依赖，无需新增）：
             pip install requests aiohttp
 
-3. 运行脚本（终端执行，无需修改任何参数）：
-            python main/iptv_processor_core_optimized.py
+3. 运行脚本（终端执行，无需修改任何参数）：python main/iptv_processor_core.py
 
 4. 查看结果：运行完成后，output 目录下会生成3个文件（日志、可播放列表、验证报告），直接使用 live_playable_name_url.txt 即可。
 
@@ -580,4 +579,6 @@ MAX_REDIRECTS = 5         # 最大重定向次数
 
 - 精准提取频道名：支持M3U格式和自定义文本格式，避免URL截取名字的混乱。
 
-备注：若想进一步提升成功率，建议在本地电脑运行（而非GitHub Actions），本地IP更难被封禁，成功率可再提升30%+。
+备注1：已修复「中文标题导致语法错误」问题，脚本开头仅保留Python可识别的代码，无多余文本。
+
+备注2：若想进一步提升成功率，建议在本地电脑运行（而非GitHub Actions），本地IP更难被封禁，成功率可再提升30%+。
