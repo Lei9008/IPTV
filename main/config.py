@@ -6,6 +6,7 @@ SOURCE_URLS = [
 ]
 
 # 测速配置（可选，不填写则使用脚本默认值）
-LATENCY_THRESHOLD = 500  # 延迟阈值，超过该值视为无效
+LATENCY_THRESHOLD = 50000  # 延迟阈值，超过该值视为无效
 CONCURRENT_LIMIT = 20    # 并发数，不宜过大
 TIMEOUT = 10             # 单个请求超时时间
+
