@@ -197,7 +197,6 @@ CCTV-14,webview://https://tv.cctv.com/live/cctvchild/
 南京新闻综合,webview://https://www.nbs.cn/live/?id=109152
 南京科教,webview://https://www.nbs.cn/live/?id=109153
 南京文旅,webview://https://www.nbs.cn/live/?id=110093
-南京十八生活,webview:https://www.nbs.cn/live/?id=110094
 南京少年,webview://https://www.nbs.cn/live/?id=110095
 
 
