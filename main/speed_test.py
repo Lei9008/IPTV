@@ -15,30 +15,93 @@ except ImportError:
 
 # ===================== 配置项（可按需调整） =====================
 # 测速参数
-DOWNLOAD_TEST_SIZE = 1024 * 1024 * 2  # 优化：调整为2MB，兼顾精准度和耗时
-TIMEOUT = 20  # 优化：延长超时时间至20秒，适配网络较差场景
+DOWNLOAD_TEST_SIZE = 1024 * 1024 * 2  # 2MB，兼顾精准度和耗时
+TIMEOUT = 20  # 延长超时时间至20秒，适配网络较差场景
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
 
 # 结果保存配置
 SAVE_RESULT = True
 RESULT_SAVE_PATH = "iptv_speed_test_result.txt"
 
-# ===================== 工具函数：解析IPTV文本（适配m3u/m3u8/txt格式，含movie.txt） =====================
+# ===================== 新增：调试函数（查看movie.txt真实格式） =====================
+def debug_print_movie_txt(link: str):
+    """
+    下载并打印movie.txt的前20行内容，用于排查格式问题
+    """
+    headers = {"User-Agent": USER_AGENT}
+    try:
+        response = requests.get(link, headers=headers, timeout=TIMEOUT, verify=False)
+        response.raise_for_status()
+        lines = response.text.split("\n")[:20]  # 只打印前20行，避免输出过多
+        print("\n=== 📝 movie.txt 前20行内容（调试用）===")
+        for idx, line in enumerate(lines, 1):
+            print(f"第{idx}行：{line.strip()}")
+        print("=== 📝 调试内容结束 ===\n")
+    except Exception as e:
+        print(f"❌  下载movie.txt失败，错误：{str(e)}")
+
+# ===================== 工具函数：优化IPTV链接提取（放宽筛选，适配movie.txt） =====================
+def extract_urls_from_line(line: str) -> List[str]:
+    """
+    从单行文本中提取所有有效URL（流媒体链接），适配各种格式
+    :param line: 单行文本
+    :return: 提取到的URL列表
+    """
+    urls = []
+    if not line:
+        return urls
+    
+    # 定义流媒体协议前缀（支持更多格式）
+    proto_prefixes = ["http://", "https://", "rtmp://", "rtsp://", "mms://"]
+    line_lower = line.lower()
+    
+    # 遍历所有协议前缀，提取完整URL（简单匹配，直到遇到空格/逗号/引号等分隔符）
+    for prefix in proto_prefixes:
+        prefix_len = len(prefix)
+        start_idx = 0
+        while True:
+            # 查找当前协议前缀的位置
+            idx = line.find(prefix, start_idx)
+            if idx == -1:
+                break
+            
+            # 从前缀位置开始，提取到分隔符为止（视为URL结束）
+            end_idx = idx + prefix_len
+            separators = [" ", ",", "\"", "'", "\t", "\n", "#", ")", "]"]
+            while end_idx < len(line):
+                if line[end_idx] in separators:
+                    break
+                end_idx += 1
+            
+            # 提取URL并验证长度（至少大于前缀长度，避免无效链接）
+            url = line[idx:end_idx].strip()
+            if len(url) > prefix_len + 5:  # 至少包含域名和部分路径
+                urls.append(url)
+            
+            # 更新起始位置，继续查找下一个相同前缀的URL
+            start_idx = end_idx
+    
+    return urls
+
 def parse_iptv_content(iptv_content: str) -> List[str]:
     """
-    优化：解析 m3u/m3u8/txt 格式 IPTV 内容，提取有效的流媒体链接（适配 movie.txt 格式）
+    优化：解析 m3u/m3u8/txt 格式 IPTV 内容，提取所有有效流媒体链接（适配movie.txt）
     :param iptv_content: IPTV 文本内容
     :return: 提取到的流媒体链接列表
     """
     iptv_links = []
     lines = iptv_content.split("\n")
+    
     for line in lines:
         line = line.strip()
-        # 筛选条件优化：支持 http/https/rtmp 开头，排除注释、空行、纯文本分类
-        if line and not line.startswith(("#", ",", "【", "】")) and (
-            line.startswith("http://") or line.startswith("https://") or line.startswith("rtmp://")
-        ):
-            iptv_links.append(line)
+        if not line:
+            continue
+        
+        # 从单行中提取所有有效URL
+        urls_in_line = extract_urls_from_line(line)
+        if urls_in_line:
+            iptv_links.extend(urls_in_line)
+    
     return iptv_links
 
 def get_iptv_links_from_input(input_links: List[str]) -> List[str]:
@@ -55,10 +118,13 @@ def get_iptv_links_from_input(input_links: List[str]) -> List[str]:
         if not link:
             continue
 
-        # 优化：支持 .txt 后缀链接（适配 movie.txt 这类 IPTV 源文件）
+        # 支持 .txt/.m3u/.m3u8 后缀链接（适配movie.txt）
         if link.endswith((".m3u", ".m3u8", ".txt")):
+            # 先调试打印movie.txt内容（仅第一次执行时打印）
+            if "movie.txt" in link:
+                debug_print_movie_txt(link)
+            
             try:
-                # 优化：添加 verify=False 跳过 SSL 验证，解决部分链接访问问题
                 response = requests.get(
                     link, 
                     headers=headers, 
@@ -66,7 +132,7 @@ def get_iptv_links_from_input(input_links: List[str]) -> List[str]:
                     verify=False
                 )
                 response.raise_for_status()
-                # 统一调用优化后的解析函数
+                # 调用优化后的解析函数
                 iptv_links = parse_iptv_content(response.text)
                 final_links.extend(iptv_links)
                 print(f"✅  解析成功，提取到 {len(iptv_links)} 个流媒体链接：{link}")
@@ -81,10 +147,10 @@ def get_iptv_links_from_input(input_links: List[str]) -> List[str]:
     print(f"\n🎉  链接处理完成，共获取 {len(final_unique_links)} 个唯一待测速IPTV链接\n")
     return final_unique_links
 
-# ===================== 核心函数：单个IPTV链接测速（优化流媒体拉取逻辑） =====================
+# ===================== 核心函数：单个IPTV链接测速（保持优化后的逻辑） =====================
 def test_single_iptv_speed(link: str) -> Optional[Dict]:
     """
-    优化：测试单个IPTV链接的速度，适配流媒体分片拉取，返回准确测速结果
+    测试单个IPTV链接的速度，适配流媒体分片拉取，返回准确测速结果
     :param link: 单个IPTV流媒体链接
     :return: 测速结果字典（失败返回None）
     """
@@ -101,7 +167,6 @@ def test_single_iptv_speed(link: str) -> Optional[Dict]:
     try:
         # 1. 测试响应延迟（首次建立连接+获取响应头耗时）
         start_time = time.time()
-        # 优化：优先 GET 请求（带 stream=True），适配更多流媒体服务器（部分不支持 HEAD）
         response = requests.get(
             link, 
             headers=headers, 
@@ -116,26 +181,24 @@ def test_single_iptv_speed(link: str) -> Optional[Dict]:
         result["response_delay_ms"] = round(response_delay, 2)
         result["is_available"] = True
 
-        # 2. 测试下载速度（优化：调大分片大小，提升流媒体拉取效率）
+        # 2. 测试下载速度（调大分片大小，提升流媒体拉取效率）
         downloaded_size = 0
         download_start_time = time.time()
-        chunk_size = 4096  # 优化：从 1024 调整为 4096 字节，适配流媒体分片
+        chunk_size = 4096  # 4096字节，适配流媒体分片
 
         for chunk in response.iter_content(chunk_size=chunk_size):
-            if chunk and len(chunk) > 0:  # 优化：增加数据有效性判断，过滤空分片
+            if chunk and len(chunk) > 0:  # 过滤空分片
                 downloaded_size += len(chunk)
-                # 双重判断：达到测试大小 或 超时，终止拉取（避免无限等待）
+                # 双重判断：达到测试大小 或 超时，终止拉取
                 if (downloaded_size >= DOWNLOAD_TEST_SIZE) or (time.time() - download_start_time) > TIMEOUT:
                     break
 
         download_end_time = time.time()
         download_duration = download_end_time - download_start_time
 
-        # 优化：完善下载速度计算逻辑，避免除以零错误
+        # 完善下载速度计算逻辑，避免除以零错误
         if download_duration > 0.001 and downloaded_size > 0:
-            # 转为 MB（字节）
             downloaded_mb = downloaded_size / (1024 * 1024)
-            # 转为 Mbps（兆比特/秒，1字节=8比特）
             download_speed_mbps = (downloaded_mb * 8) / download_duration
             result["download_speed_mbps"] = round(download_speed_mbps, 2)
         else:
@@ -232,9 +295,9 @@ def print_and_save_results(speed_results: List[Dict]):
         except Exception as e:
             print(f"\n❌  保存测速结果失败，错误：{str(e)}")
 
-# ===================== 主程序入口（已配置 movie.txt 链接） =====================
+# ===================== 主程序入口（配置 movie.txt 链接） =====================
 if __name__ == "__main__":
-    # 优化：直接配置 movie.txt 的 RAW 链接，自动解析其中的流媒体链接
+    # 配置 movie.txt 的 RAW 链接，自动解析其中的流媒体链接
     INPUT_IPTV_LINKS = [
         "https://raw.githubusercontent.com/Lei9008/IPTV/main/input/source/movie.txt"
     ]
