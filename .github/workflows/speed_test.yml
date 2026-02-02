@@ -1,10 +1,9 @@
-
 name: speed_test
 
 on:
   schedule:
-    - cron: '0 2 */3 * *'
-  workflow_dispatch:
+    - cron: '0 2 */3 * *'  # 每3天的凌晨10点（UTC）= 下午6点（北京时间）执行
+  workflow_dispatch:  # 支持手动触发
 
 env:
   TZ: Asia/Shanghai
@@ -15,7 +14,7 @@ jobs:
   merge-and-push-iptv:
     runs-on: ubuntu-latest
     steps:
-      # 步骤1：检出代码（必须带 persist-credentials: false，清空默认凭证）
+      # 步骤1：检出代码（清空默认凭证，避免权限问题）
       - name: Checkout Repository Code
         uses: actions/checkout@v4
         with:
@@ -27,18 +26,17 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
+          cache: 'pip'  # 缓存pip依赖，加快后续运行速度
 
-      # 步骤3：安装依赖
+      # 步骤3：安装Python依赖（修复：补充aiohttp）
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install requests
+          pip install requests aiohttp
 
-      # 步骤4：执行合并脚本（替换为你的实际脚本名）
+      # 步骤4：执行IPTV脚本（优化：省略冗余的working-directory）
       - name: Run IPTV Merge Script
         run: python main/iptv_processor_core.py
-        working-directory: ./
 
       # 步骤5：配置Git用户信息
       - name: Configure Git User
@@ -46,28 +44,31 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
 
-      # 步骤6：强制替换远程地址（核心修复，提前到commit前，且强制覆盖）
+      # 步骤6：更新Git远程地址（带PAT）并拉取最新代码
       - name: Force Update Git Remote with PAT
         env:
           IPTV_PUSH_TOKEN: ${{ secrets.IPTV_PUSH_TOKEN }}
         run: |
-          # 强制替换远程地址，无任何容错，确保命令执行
+          # 移除并重新添加远程仓库（带个人访问令牌PAT）
           git remote rm origin
           git remote add origin https://${IPTV_PUSH_TOKEN}@github.com/${{ env.TARGET_REPO }}.git
-          # 打印远程地址，确认替换成功
+          # 打印远程地址确认
           echo "=== Current Git Remote ==="
           git remote -v
-          # 提前拉取最新代码，避免冲突
-          git pull origin main --rebase || echo "No remote changes to pull"
+          # 拉取最新代码，若无变更则忽略错误
+          git pull origin main --rebase || echo "No remote changes to pull or rebase failed, continue to push"
 
-      # 步骤7：提交并推送（仅用替换后的origin）
+      # 步骤7：提交并推送结果（优化：补充时间戳、可选强制推送）
       - name: Commit and Push
         run: |
           git add -A
           if ! git diff --staged --quiet; then
-            git commit -m "Auto-merge IPTV sources: Update Live_iptv.txt"
-            # 直接推送，使用已配置的带PAT的origin
+            # 优化：添加时间戳，便于追溯
+            git commit -m "Auto-merge IPTV sources: Update Live_iptv.txt [$(date +'%Y-%m-%d %H:%M:%S')]"
+            # 普通推送（优先推荐，无冲突时使用）
             git push origin main
+            # 若需强制覆盖（谨慎使用！会覆盖远程最新提交），替换上面一行为：
+            # git push origin main --force
             echo "Push success!"
           else
             echo "No changes to push"
