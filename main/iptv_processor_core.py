@@ -3,7 +3,7 @@ import subprocess
 from concurrent.futures import ThreadPoolExecutor  # 多线程提速
 
 # 配置项（按需改）
-M3U_URL = "https://example.com/xxx/your_movie_list.txt"  # 你的外部数据URL
+M3U_URL = "https://raw.githubusercontent.com/Lei9008/IPTV/main/input/source/movie.txt"  # 你的外部数据URL
 THREAD_NUM = 10                                # 并发线程数（越多越快，别超20）
 REQUEST_TIMEOUT = 5                            # HTTP请求超时时间（秒）
 FFMPEG_TIMEOUT = 10                            # ffmpeg测试超时时间（秒）
